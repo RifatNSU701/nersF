@@ -12,8 +12,10 @@ import tenderRoutes from './routes/v1/tenders.routes';
 import bidRoutes from './routes/v1/bid.routes';
 import vendorRoutes from './routes/v1/vendor.routes'; 
 import storageRoutes from './routes/v1/storage.routes'; 
-import { startCurrencyOracle } from './services/currency.service';
 import requisitionRoutes from './routes/v1/requisition.routes';
+import cmsRoutes from './routes/v1/cms.routes'; // Added missing CMS import
+
+import { startCurrencyOracle } from './services/currency.service';
 
 const app: Application = express();
 
@@ -37,7 +39,8 @@ app.use('/api/v1/tenders', tenderRoutes); // Tenders
 app.use('/api/v1/bids', bidRoutes);       // Bids
 app.use('/api/vendors', vendorRoutes);    // Vendors
 app.use('/api/storage', storageRoutes);   // Storage (Warehouses)
-app.use('/api/requisitions', requisitionRoutes);
+app.use('/api/requisitions', requisitionRoutes); // Requisitions
+app.use('/api/v1/cms', cmsRoutes);        // CMS (News & Notices)
 
 
 // Health Check
