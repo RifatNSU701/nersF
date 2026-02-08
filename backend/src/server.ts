@@ -2,12 +2,13 @@
 import dotenv from 'dotenv';
 import app from './app'; // Imports the configured app
 import pool from './config/database';
-import requisitionRoutes from './routes/v1/requisition.routes';
+import { initSocket } from './services/socket.service'; // <--- NEW IMPORT
 
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;
 
+// 1. Start the HTTP Server
 const server = app.listen(PORT, async () => {
   console.log(`\n=================================`);
   console.log(`🚀 NERSF GOVERNMENT SERVER LIVE`);
@@ -15,6 +16,7 @@ const server = app.listen(PORT, async () => {
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`=================================`);
 
+  // 2. Test Database Connection
   try {
     const connection = await pool.getConnection();
     console.log('✅ MySQL Database Connected Successfully!');
@@ -25,3 +27,6 @@ const server = app.listen(PORT, async () => {
     process.exit(1);
   }
 });
+
+// 3. Attach Socket.io to the running server
+initSocket(server); // <--- ACTIVATES REAL-TIME CHAT

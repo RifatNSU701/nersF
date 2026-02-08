@@ -13,9 +13,10 @@ import bidRoutes from './routes/v1/bid.routes';
 import vendorRoutes from './routes/v1/vendor.routes'; 
 import storageRoutes from './routes/v1/storage.routes'; 
 import requisitionRoutes from './routes/v1/requisition.routes';
-import cmsRoutes from './routes/v1/cms.routes'; // Added missing CMS import
-
+import cmsRoutes from './routes/v1/cms.routes';
+import crmRoutes from './routes/v1/crm.routes';
 import { startCurrencyOracle } from './services/currency.service';
+import tradeRoutes from './routes/v1/trade.routes'; 
 
 const app: Application = express();
 
@@ -41,6 +42,8 @@ app.use('/api/vendors', vendorRoutes);    // Vendors
 app.use('/api/storage', storageRoutes);   // Storage (Warehouses)
 app.use('/api/requisitions', requisitionRoutes); // Requisitions
 app.use('/api/v1/cms', cmsRoutes);        // CMS (News & Notices)
+app.use('/api/v1/crm', crmRoutes); // CRM (Complaints & Feedback)
+app.use('/api/v1/trade', tradeRoutes);//Import & Export
 
 
 // Health Check

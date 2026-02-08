@@ -2,8 +2,10 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
-import pool from '../config/database'; // Default export
-import { UserRoles } from '../constants/roles';
+import pool from '../config/database'; 
+
+// Define valid roles locally to avoid import errors
+const VALID_ROLES = ['ADMIN', 'CITIZEN', 'VENDOR', 'OFFICER'];
 
 // ==========================================
 // REGISTER
@@ -18,8 +20,10 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // 2. Validate Role (Must be a valid Enum value)
-    if (!Object.values(UserRoles).includes(role)) {
+    // 2. Validate Role
+    // We convert input to uppercase to match our database ENUM
+    const normalizedRole = role.toUpperCase();
+    if (!VALID_ROLES.includes(normalizedRole)) {
       res.status(400).json({ message: 'Invalid Role provided' });
       return;
     }
@@ -35,12 +39,11 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const userId = uuidv4();
 
-    // 5. Insert into DB (Storing Role as STRING now)
-    // Note: We use the 'role' string directly. No mapping to IDs.
+    // 5. Insert into DB
     await pool.execute(
       `INSERT INTO users (id, full_name, email, password_hash, role, phone_number, is_active) 
-       VALUES (?, ?, ?, ?, ?, ?, 1)`,
-      [userId, name, email, hashedPassword, role, phone_number]
+        VALUES (?, ?, ?, ?, ?, ?, 1)`,
+      [userId, name, email, hashedPassword, normalizedRole, phone_number]
     );
 
     res.status(201).json({ message: 'User registered successfully' });
@@ -78,7 +81,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     const token = jwt.sign(
       { 
         id: user.id, 
-        role: user.role // This is now a string (e.g. "VENDOR")
+        role: user.role // This is a string (e.g. "VENDOR")
       }, 
       process.env.JWT_SECRET || 'secret', 
       { expiresIn: '1h' }
@@ -105,7 +108,6 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 // ==========================================
 export const getCurrentUser = async (req: Request, res: Response): Promise<void> => {
   try {
-    // The user ID comes from the middleware attaching it to req.user
     const userId = (req as any).user?.id;
     
     if (!userId) {
