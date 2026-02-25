@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, Lock, ArrowLeft, User, Mail, FileText, Building2, Phone } from 'lucide-react';
+import { Shield, Lock, ArrowLeft, User, Mail, FileText, Building2, Phone, CreditCard } from 'lucide-react';
 
 type UserRole = 'public' | 'vendor';
 
 const Register = () => {
   const navigate = useNavigate();
-  const [role, setRole] = useState<UserRole>('public'); // Default to Public
+  const [role, setRole] = useState<UserRole>('public');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleRegister = (e: React.FormEvent) => {
@@ -14,183 +14,178 @@ const Register = () => {
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
-      // Logic would differ here based on role in real backend
-      alert(`Registration submitted for ${role === 'vendor' ? 'Vendor Approval' : 'Public Account'}.`);
+      alert(`Application Submitted Successfully.\n\nType: ${role === 'vendor' ? 'Vendor License' : 'Citizen Account'}\nStatus: Pending Verification`);
       navigate('/login');
-    }, 1500);
+    }, 2000);
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex">
+    <div className="min-h-screen bg-gray-50 flex font-sans">
       
       {/* 1. LEFT SIDE - Form Section */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 bg-white text-gray-900 shadow-xl z-10">
-        <div className="w-full max-w-md">
-          <button 
-            onClick={() => navigate('/')}
-            className="flex items-center text-gray-500 hover:text-primary mb-6 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" /> Back to Portal
-          </button>
+      <div className="w-full lg:w-7/12 flex flex-col justify-center items-center p-8 bg-white text-gray-900 relative">
+        <button 
+          onClick={() => navigate('/')}
+          className="absolute top-8 left-8 flex items-center text-sm font-bold text-gray-400 hover:text-primary transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" /> Back
+        </button>
 
+        <div className="w-full max-w-lg">
           <div className="text-center mb-8">
-            <Shield className="h-12 w-12 text-primary mx-auto mb-4" />
-            <h2 className="text-3xl font-bold text-gray-900">Create Account</h2>
-            <p className="text-gray-500 mt-2">Select your account type to proceed</p>
+            <h2 className="text-3xl font-bold text-gray-900">Account Registration</h2>
+            <p className="text-gray-500 mt-2">Create a verified account to access national services</p>
           </div>
 
           {/* ROLE SWITCHER TABS */}
           <div className="flex p-1 bg-gray-100 rounded-lg mb-8">
             <button
               onClick={() => setRole('public')}
-              className={`flex-1 py-2 text-sm font-bold rounded-md transition-all ${
+              className={`flex-1 py-3 text-sm font-bold rounded-md transition-all flex items-center justify-center ${
                 role === 'public' 
                   ? 'bg-white text-primary shadow-sm' 
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              Public Citizen
+              <User className="h-4 w-4 mr-2" /> Private Citizen
             </button>
             <button
               onClick={() => setRole('vendor')}
-              className={`flex-1 py-2 text-sm font-bold rounded-md transition-all ${
+              className={`flex-1 py-3 text-sm font-bold rounded-md transition-all flex items-center justify-center ${
                 role === 'vendor' 
                   ? 'bg-white text-secondary shadow-sm text-yellow-700' 
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              Vendor / Supplier
+              <Building2 className="h-4 w-4 mr-2" /> Contractor / Vendor
             </button>
           </div>
 
           <form onSubmit={handleRegister} className="space-y-5">
             
-            {/* --- FORM FIELDS FOR PUBLIC --- */}
-            {role === 'public' && (
-              <>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+               {/* --- SHARED FIELDS --- */}
+               <div className="md:col-span-2">
+                  <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Full Legal Name / Company Name</label>
                   <div className="relative">
                     <User className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
-                    <input type="text" className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary outline-none" placeholder="Mr. Citizen" required />
+                    <input type="text" className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm font-medium" placeholder={role === 'public' ? "Mr. Citizen" : "Acme Engineering Ltd."} required />
                   </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
+               </div>
+
+               <div>
+                  <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Email Address</label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
+                    <input type="email" className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm font-medium" placeholder="mail@example.com" required />
+                  </div>
+               </div>
+
+               <div>
+                  <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Mobile Number</label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
-                    <input type="tel" className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary outline-none" placeholder="+880 1XXX XXXXXX" required />
+                    <input type="tel" className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm font-medium" placeholder="+880 1XXX..." required />
                   </div>
-                </div>
-              </>
-            )}
+               </div>
+            </div>
 
-            {/* --- FORM FIELDS FOR VENDOR --- */}
-            {role === 'vendor' && (
-              <>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
-                  <div className="relative">
-                    <Building2 className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
-                    <input type="text" className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary outline-none" placeholder="Acme Energy Ltd." required />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Trade License No.</label>
-                  <div className="relative">
-                    <FileText className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
-                    <input type="text" className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary outline-none" placeholder="TRD-2026-XXXX" required />
-                  </div>
-                </div>
-              </>
-            )}
+            {/* --- ROLE SPECIFIC FIELDS (GOVT GRADE) --- */}
+            <div className="bg-gray-50 p-5 rounded-lg border border-gray-200">
+               <h3 className="text-xs font-bold text-gray-500 uppercase mb-4 border-b border-gray-200 pb-2">Identity Verification</h3>
+               
+               {role === 'public' && (
+                 <div>
+                    <label className="block text-xs font-bold text-gray-700 uppercase mb-1">National ID (NID)</label>
+                    <div className="relative">
+                      <CreditCard className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
+                      <input type="text" className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm font-medium" placeholder="10-17 Digit Smart NID" required />
+                    </div>
+                    <p className="text-[10px] text-gray-500 mt-1">Your NID will be verified against the EC Database.</p>
+                 </div>
+               )}
 
-            {/* --- COMMON FIELDS --- */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
-                <input type="email" className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary outline-none" placeholder="user@example.com" required />
-              </div>
+               {role === 'vendor' && (
+                 <div className="space-y-4">
+                    <div>
+                       <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Trade License Number</label>
+                       <div className="relative">
+                         <FileText className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
+                         <input type="text" className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary outline-none text-sm font-medium" placeholder="TRD-XXXX-YYYY" required />
+                       </div>
+                    </div>
+                    <div>
+                       <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Tax ID (TIN/BIN)</label>
+                       <div className="relative">
+                         <FileText className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
+                         <input type="text" className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary outline-none text-sm font-medium" placeholder="BIN-XXXX-YYYY" required />
+                       </div>
+                    </div>
+                 </div>
+               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Set Password</label>
+              <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Set Password</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
-                <input type="password" className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary outline-none" placeholder="••••••••" required />
+                <input type="password" className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary outline-none text-sm font-medium" placeholder="••••••••" required />
               </div>
             </div>
 
             <button 
               type="submit" 
               disabled={isLoading}
-              className={`w-full text-white font-bold py-3 px-4 rounded-lg transition-all shadow-md hover:shadow-lg flex justify-center items-center ${
+              className={`w-full text-white font-bold py-4 px-4 rounded-lg transition-all shadow-md hover:shadow-lg flex justify-center items-center text-sm tracking-wide ${
                 role === 'vendor' ? 'bg-secondary hover:bg-yellow-600 text-primary-dark' : 'bg-primary hover:bg-primary-dark'
               }`}
             >
-              {isLoading ? "PROCESSING..." : role === 'vendor' ? "SUBMIT LICENSE APPLICATION" : "CREATE PUBLIC ACCOUNT"}
+              {isLoading ? "VERIFYING DATA..." : role === 'vendor' ? "SUBMIT VENDOR APPLICATION" : "CREATE CITIZEN ACCOUNT"}
             </button>
           </form>
 
-          {/* Footer Links */}
-          <div className="mt-6 text-center space-y-2">
+          <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
-              Already registered?{' '}
+              Already have an account?{' '}
               <span onClick={() => navigate('/login')} className="font-bold text-primary hover:underline cursor-pointer">Login here</span>
             </p>
-            
-            {/* Government Official Note */}
-            <div className="pt-4 border-t border-gray-100">
-              <p className="text-xs text-gray-400">
-                <strong>Note for Government Officials:</strong><br/>
-                You cannot self-register. Please contact the Ministry IT Cell for your credentials.
-              </p>
-            </div>
           </div>
         </div>
       </div>
 
       {/* 2. RIGHT SIDE - Dynamic Visual Section */}
-      <div className={`hidden lg:flex w-1/2 flex-col justify-center px-12 relative overflow-hidden text-white transition-colors duration-500 ${
+      <div className={`hidden lg:flex w-5/12 flex-col justify-center px-12 relative overflow-hidden text-white transition-colors duration-700 ${
         role === 'vendor' ? 'bg-slate-900' : 'bg-primary-dark'
       }`}>
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:20px_20px]"></div>
         
-        {/* Content changes based on Role */}
         <div className="relative z-10">
           <Shield className={`h-16 w-16 mb-6 ${role === 'vendor' ? 'text-secondary' : 'text-blue-400'}`} />
           
-          <h1 className="text-4xl font-bold mb-4">
-            {role === 'vendor' ? 'Grow with the Nation' : 'Your Voice Matters'}
+          <h1 className="text-4xl font-bold mb-4 leading-tight">
+            {role === 'vendor' ? 'Empowering National' : 'Transparent Energy'} <br/>
+            <span className={role === 'vendor' ? 'text-secondary' : 'text-blue-300'}>
+               {role === 'vendor' ? 'Infrastructure' : 'For Everyone'}
+            </span>
           </h1>
           
-          <p className="text-lg text-blue-100 mb-8 leading-relaxed">
+          <p className="text-lg text-blue-100 mb-8 leading-relaxed opacity-80">
             {role === 'vendor' 
-              ? "Join the network of certified suppliers fueling Bangladesh's growth. Bid on national tenders and manage energy contracts."
-              : "Access public reports, submit complaints, and provide valuable feedback on energy distribution in your area."
+              ? "Join the elite network of certified suppliers fueling Bangladesh's growth. Access exclusive government tenders and manage contracts securely."
+              : "Access real-time grid data, download tariff reports, and participate in the national energy dialogue."
             }
           </p>
           
-          <h3 className="font-bold text-white mb-3 uppercase tracking-wider text-sm">
-            {role === 'vendor' ? 'Vendor Requirements:' : 'Citizen Features:'}
-          </h3>
-          
-          <ul className="space-y-3 text-gray-300">
-            {role === 'vendor' ? (
-              <>
-                <li className="flex items-center"><span className="text-secondary mr-2">✓</span> Valid Trade License & TIN</li>
-                <li className="flex items-center"><span className="text-secondary mr-2">✓</span> 3-Year Financial Audit</li>
-                <li className="flex items-center"><span className="text-secondary mr-2">✓</span> ISO Certification (Preferred)</li>
-              </>
-            ) : (
-              <>
-                <li className="flex items-center"><span className="text-blue-400 mr-2">✓</span> View Live Grid Status</li>
-                <li className="flex items-center"><span className="text-blue-400 mr-2">✓</span> Submit Load Shedding Complaints</li>
-                <li className="flex items-center"><span className="text-blue-400 mr-2">✓</span> Download Public Energy Reports</li>
-              </>
-            )}
-          </ul>
+          <div className="bg-white/10 backdrop-blur-md rounded-lg p-6 border border-white/10">
+             <h3 className="font-bold text-white mb-4 uppercase tracking-wider text-xs">
+               {role === 'vendor' ? 'Vendor Prerequisites' : 'Citizen Privileges'}
+             </h3>
+             <ul className="space-y-3 text-sm text-gray-300">
+               <li className="flex items-center"><span className="text-green-400 mr-3">✓</span> {role === 'vendor' ? 'Valid Trade License & TIN' : 'Live Grid Monitoring'}</li>
+               <li className="flex items-center"><span className="text-green-400 mr-3">✓</span> {role === 'vendor' ? '3-Year Audited Financials' : 'Tariff & Subsidy Alerts'}</li>
+               <li className="flex items-center"><span className="text-green-400 mr-3">✓</span> {role === 'vendor' ? 'e-GP Registration' : 'Public Feedback Portal'}</li>
+             </ul>
+          </div>
         </div>
       </div>
     </div>
