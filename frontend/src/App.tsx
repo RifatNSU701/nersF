@@ -8,9 +8,11 @@ import Infrastructure from './pages/Infrastructure';
 
 // ADMIN IMPORTS
 import DashboardLayout from './layouts/DashboardLayout';
-import DashboardOverview from './pages/admin/DashboardOverview'; // <--- NEW
+import DashboardOverview from './pages/admin/DashboardOverview'; 
 import ImportExport from './pages/admin/ImportExport';
 import Stocks from './pages/admin/Stocks';
+import Consumers from './pages/admin/Consumers';
+import Vendors from './pages/admin/Vendors'; // <--- NEW IMPORT ADDED
 
 function App() {
   return (
@@ -35,10 +37,10 @@ function App() {
            <Route path="dashboard" element={<DashboardOverview />} />
            <Route path="import-export" element={<ImportExport />} />
            <Route path="stocks" element={<Stocks />} />
+           <Route path="consumers" element={<Consumers />} />
+           <Route path="vendors" element={<Vendors />} /> {/* <--- CONNECTED HERE */}
            
            {/* PLACEHOLDERS (Coming Soon) */}
-           <Route path="consumers" element={<div className="p-10 text-2xl font-bold text-gray-500">Consumer Distribution Data (Coming Soon)</div>} />
-           <Route path="vendors" element={<div className="p-10 text-2xl font-bold text-gray-500">Vendor Registry (Coming Soon)</div>} />
            <Route path="reports" element={<div className="p-10 text-2xl font-bold text-gray-500">Audit Reports (Coming Soon)</div>} />
         </Route>
       </Routes>
