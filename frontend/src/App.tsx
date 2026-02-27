@@ -12,7 +12,8 @@ import DashboardOverview from './pages/admin/DashboardOverview';
 import ImportExport from './pages/admin/ImportExport';
 import Stocks from './pages/admin/Stocks';
 import Consumers from './pages/admin/Consumers';
-import Vendors from './pages/admin/Vendors'; // <--- NEW IMPORT ADDED
+import Vendors from './pages/admin/Vendors'; 
+import Reports from './pages/admin/Reports';
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
            <Route path="stocks" element={<Stocks />} />
            <Route path="consumers" element={<Consumers />} />
            <Route path="vendors" element={<Vendors />} /> {/* <--- CONNECTED HERE */}
+           <Route path="reports" element={<Reports />} />
            
            {/* PLACEHOLDERS (Coming Soon) */}
            <Route path="reports" element={<div className="p-10 text-2xl font-bold text-gray-500">Audit Reports (Coming Soon)</div>} />
