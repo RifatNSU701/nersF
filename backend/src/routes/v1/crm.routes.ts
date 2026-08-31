@@ -1,36 +1,17 @@
 import { Router } from 'express';
-import { 
-  createComplaint, 
-  getMyComplaints, 
-  getAllComplaints, 
-  resolveComplaint, 
-  submitFeedback 
-} from '../../controllers/crm.controller';
+import { createComplaint, getMyComplaints, getAllComplaints, updateComplaint, submitFeedback } from '../../controllers/crm.controller';
 import { authenticate } from '../../middlewares/auth.middleware';
+import { authorize } from '../../middlewares/role.middleware';
+import { UserRoles } from '../../constants/roles';
 
 const router = Router();
+const consumerRoles = [UserRoles.CITIZEN];
+const governmentRoles = [UserRoles.ADMIN, UserRoles.SUPER_ADMIN, UserRoles.OFFICER, UserRoles.SUPPORT_AGENT];
 
-// =======================
-// 1. COMPLAINT ROUTES
-// =======================
-
-// User: Submit a new complaint
-router.post('/complaints', authenticate, createComplaint);
-
-// User: Get their own history
-router.get('/complaints', authenticate, getMyComplaints);
-
-// Admin: Get ALL complaints from everyone
-router.get('/complaints/all', authenticate, getAllComplaints);
-
-// Admin: Resolve/Reply to a complaint
-router.put('/complaints/:id', authenticate, resolveComplaint);
-
-// =======================
-// 2. FEEDBACK ROUTES
-// =======================
-
-// Public: Submit feedback (Rating 1-5)
-router.post('/feedback', submitFeedback);
+router.post('/complaints', authenticate, authorize(consumerRoles), createComplaint);
+router.get('/complaints', authenticate, authorize(consumerRoles), getMyComplaints);
+router.get('/complaints/all', authenticate, authorize([...governmentRoles, UserRoles.AUDITOR]), getAllComplaints);
+router.put('/complaints/:id', authenticate, authorize(governmentRoles), updateComplaint);
+router.post('/feedback', authenticate, submitFeedback);
 
 export default router;
