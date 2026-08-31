@@ -11,8 +11,8 @@ const agents=[UserRoles.ADMIN,UserRoles.SUPER_ADMIN,UserRoles.OFFICER,UserRoles.
 router.post('/tickets',authenticate,createTicket);
 router.get('/tickets/my',authenticate,getMyTickets);
 router.get('/tickets',authenticate,authorize(agents),getSupportTickets);
-router.patch('/tickets/:id',authenticate,authorize(agents),updateTicket);
+router.patch('/tickets/:id',authenticate,authorize(agents),logAudit('UPDATE_SUPPORT_TICKET','SUPPORT_TICKET'),updateTicket);
 router.get('/tickets/:ticketId/messages',authenticate,getMessages);
-router.post('/tickets/:ticketId/messages',authenticate,postMessage);
+router.post('/tickets/:ticketId/messages',authenticate,logAudit('SEND_SUPPORT_MESSAGE','CHAT_MESSAGE'),postMessage);
 
 export default router;
