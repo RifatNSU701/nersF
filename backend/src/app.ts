@@ -1,3 +1,5 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import express, { Application, Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
