@@ -3,13 +3,7 @@
 
 USE nersf_db;
 
-INSERT IGNORE INTO roles (name,description) VALUES
-('CITIZEN','Registered public consumer'),
-('VENDOR','Verified or pending vendor/bidder'),
-('TENDER_OFFICER','Government procurement officer'),
-('OFFICER','Government operational officer'),
-('SUPER_ADMIN','Highest privileged system administrator'),
-('SUPPORT_AGENT','24/7 help desk support agent');
+-- Canonical roles are seeded by database/schema.sql. Keep this migration data-safe and schema-only.
 
 -- The role column, audit fields, and support indexes are created by migration 001.
 UPDATE users u JOIN roles r ON r.id = u.role_id
