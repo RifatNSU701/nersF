@@ -125,7 +125,7 @@ export const getMessages = async (req: AuthRequest, res: Response): Promise<void
 export const postMessage = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const role = String(req.user!.role);
-    const access = await ticketAccess(req.params.ticketId, req.user!.id, role);
+    const access = await ticketAccess(String(req.params.ticketId), req.user!.id, role);
     if (!access.exists) {
       res.status(404).json({ message: 'Support ticket not found.' });
       return;
