@@ -36,9 +36,12 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     const userId = uuidv4();
     const isActive = normalizedRole === 'CITIZEN' ? 1 : 0;
 
+    const [roleRows]: any[] = await pool.execute('SELECT id FROM roles WHERE name = ? LIMIT 1', [normalizedRole]);
+    if (!roleRows.length) { res.status(500).json({ message: 'Requested account role is not configured.' }); return; }
+
     await pool.execute(
-      'INSERT INTO users (id, full_name, email, password_hash, role, phone_number, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [userId, String(name).trim(), String(email).trim().toLowerCase(), hashedPassword, normalizedRole, phone_number || null, isActive]
+      'INSERT INTO users (id, role_id, full_name, email, password_hash, role, phone_number, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [userId, roleRows[0].id, String(name).trim(), String(email).trim().toLowerCase(), hashedPassword, normalizedRole, phone_number || null, isActive]
     );
 
     res.status(201).json({
