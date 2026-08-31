@@ -8,7 +8,7 @@ const SELF_REGISTRATION_ROLES = ['CITIZEN', 'VENDOR'];
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { name, email, password, role, phone_number } = req.body;
+    const { name, email, password, role, phone_number, company_name, registration_number, tax_id_number, company_address, contact_person, trade_license_doc_path, tin_certificate_doc_path } = req.body;
 
     if (!name || !email || !password || !role) {
       res.status(400).json({ message: 'Missing required fields' });
@@ -32,6 +32,14 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    if (normalizedRole === 'VENDOR') {
+      const requiredVendorFields = [company_name, registration_number, tax_id_number, company_address, contact_person, trade_license_doc_path, tin_certificate_doc_path];
+      if (requiredVendorFields.some(value => !String(value || '').trim())) {
+        res.status(400).json({ message: 'Complete vendor company, registration, tax, contact and required document information is required.' });
+        return;
+      }
+    }
+
     const hashedPassword = await bcrypt.hash(password, 12);
     const userId = uuidv4();
     const isActive = normalizedRole === 'CITIZEN' ? 1 : 0;
@@ -39,10 +47,27 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     const [roleRows]: any[] = await pool.execute('SELECT id FROM roles WHERE name = ? LIMIT 1', [normalizedRole]);
     if (!roleRows.length) { res.status(500).json({ message: 'Requested account role is not configured.' }); return; }
 
-    await pool.execute(
-      'INSERT INTO users (id, role_id, full_name, email, password_hash, role, phone_number, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [userId, roleRows[0].id, String(name).trim(), String(email).trim().toLowerCase(), hashedPassword, normalizedRole, phone_number || null, isActive]
-    );
+    const connection = await pool.getConnection();
+    try {
+      await connection.beginTransaction();
+      await connection.execute(
+        'INSERT INTO users (id, role_id, full_name, email, password_hash, role, phone_number, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        [userId, roleRows[0].id, String(name).trim(), String(email).trim().toLowerCase(), hashedPassword, normalizedRole, phone_number || null, isActive]
+      );
+      if (normalizedRole === 'VENDOR') {
+        await connection.execute(
+          `INSERT INTO vendors (id, user_id, company_name, registration_number, tax_id_number, company_address, contact_person, verification_status, trade_license_doc_path, tin_certificate_doc_path)
+           VALUES (?, ?, ?, ?, ?, ?, ?, 'PENDING', ?, ?)`,
+          [uuidv4(), userId, String(company_name).trim(), String(registration_number).trim(), String(tax_id_number).trim(), String(company_address).trim(), String(contact_person).trim(), String(trade_license_doc_path).trim(), String(tin_certificate_doc_path).trim()]
+        );
+      }
+      await connection.commit();
+    } catch (dbError) {
+      await connection.rollback();
+      throw dbError;
+    } finally {
+      connection.release();
+    }
 
     res.status(201).json({
       message: normalizedRole === 'VENDOR'
@@ -64,7 +89,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const [rows]: any[] = await pool.execute('SELECT * FROM users WHERE email = ?', [String(email).trim().toLowerCase()]);
+    const [rows]: any[] = await pool.execute(`SELECT u.*, r.name AS canonical_role FROM users u JOIN roles r ON u.role_id = r.id WHERE u.email = ?`, [String(email).trim().toLowerCase()]);
     if (rows.length === 0) {
       res.status(401).json({ message: 'Invalid credentials' });
       return;
@@ -88,12 +113,13 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const token = jwt.sign({ id: user.id, role: user.role }, secret, { expiresIn: process.env.JWT_EXPIRES_IN || '1h' } as jwt.SignOptions);
+    const canonicalRole = user.canonical_role || user.role;
+    const token = jwt.sign({ id: user.id, role: canonicalRole }, secret, { expiresIn: process.env.JWT_EXPIRES_IN || '1h' } as jwt.SignOptions);
 
     res.status(200).json({
       message: 'Login successful',
       token,
-      user: { id: user.id, name: user.full_name, email: user.email, role: user.role }
+      user: { id: user.id, name: user.full_name, email: user.email, role: canonicalRole }
     });
   } catch (error) {
     console.error('Login error:', error);
