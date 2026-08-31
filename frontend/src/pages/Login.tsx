@@ -27,7 +27,7 @@ const Login = () => {
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || 'Login failed');
 
-      const governmentRoles = ['ADMIN', 'OFFICER', 'AUDITOR', 'SUPER_ADMIN'];
+      const governmentRoles = ['ADMIN', 'OFFICER', 'AUDITOR', 'SUPER_ADMIN', 'TENDER_OFFICER', 'SUPPORT_AGENT'];
       const isGovernmentUser = governmentRoles.includes(data.user.role);
 
       if (loginType === 'official' && !isGovernmentUser) {
@@ -38,6 +38,8 @@ const Login = () => {
       localStorage.setItem('nersf_user', JSON.stringify(data.user));
 
       if (isGovernmentUser) navigate('/admin');
+      else if (data.user.role === 'CITIZEN') navigate('/consumer');
+      else if (data.user.role === 'VENDOR') navigate('/vendor');
       else navigate('/');
     } catch (err: any) {
       setError(err.message || 'Unable to sign in. Please try again.');
