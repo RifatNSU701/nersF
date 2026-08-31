@@ -2,28 +2,90 @@
 
 ## National Energy, Resource & Security Framework
 
-NERSF is a Bangladesh-focused, government-grade digital platform for managing energy consumers, vendors and bidders, public information, tenders, resources, infrastructure, support services, and government administration.
+NERSF is a Bangladesh-focused digital government platform for energy services, public consumers, vendors and bidders, procurement, resources, infrastructure, support services, and government administration.
 
 ## Portals
 
-- Public & Consumer Portal
+- Public Information Portal
+- Consumer Portal
 - Vendor / Bidder Portal
 - Government Administration Portal
+- Auditor Access
 
 ## Technology
 
-- Frontend: React + TypeScript
-- Backend: Node.js + TypeScript
+- Frontend: React + TypeScript + Vite
+- Backend: Node.js + Express + TypeScript
 - Database: MySQL
+- Real-time Services: Socket.IO
 
-## Development Status
+## Core Modules
 
-The project is currently under active reconstruction. The immediate priorities are repository security, authentication, role-based access control, portal separation, and replacing mock frontend data with real API and database integrations.
+- Authentication and role-based access control
+- Public registration for citizens and vendors only
+- Tender and bid management
+- Consumer complaints and official responses
+- Vendor management
+- Import/export and resource workflows
+- 24/7 Help Desk with persistent ticket conversations
+- Government audit ledger
+- CSV audit export
 
-## Security
+## Local Setup
 
-Never commit real credentials, API keys, database passwords, or production secrets. Copy `backend/.env.example` to `backend/.env` and provide local development values.
+### 1. Database
 
-## Setup
+Create the MySQL database and apply the repository schema/migrations required by your environment.
 
-Detailed setup documentation will be expanded as the project foundation is completed.
+### 2. Backend
+
+Copy the environment example and configure:
+
+- DB_HOST
+- DB_PORT
+- DB_USER
+- DB_PASSWORD
+- DB_NAME
+- JWT_SECRET
+- CORS_ORIGIN
+- PORT
+
+Then:
+
+```bash
+cd backend
+npm install
+npm run build
+npm run dev
+```
+
+### 3. Frontend
+
+Configure:
+
+- VITE_API_URL
+- VITE_SOCKET_URL
+
+Then:
+
+```bash
+cd frontend
+npm install
+npm run build
+npm run dev
+```
+
+## Security Notes
+
+- Never commit production credentials.
+- Use a strong, unique JWT_SECRET in production.
+- Deploy behind HTTPS.
+- Restrict CORS_ORIGIN to approved domains.
+- Database access should use a least-privilege production account.
+- Audit records should be retained according to the applicable government policy.
+
+## Production Readiness Status
+
+The repository has completed a major integration and security pass, including protected Socket.IO connections, ticket-level authorization, audit integration, and real audit dashboard connectivity.
+
+Before an actual government production deployment, conduct independent penetration testing, load testing, database backup/recovery testing, disaster recovery validation, accessibility review, and a formal security/compliance assessment.
