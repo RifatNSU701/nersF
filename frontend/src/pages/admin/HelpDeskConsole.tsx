@@ -1,6 +1,6 @@
 import React,{useEffect,useRef,useState}from'react';
 import {io,Socket}from'socket.io-client';
-import {Headphones,Send,RefreshCw,CheckCircle2,Clock,Search}from'lucide-react';
+import {Headphones,Send,RefreshCw,CheckCircle2,Search}from'lucide-react';
 const API=import.meta.env.VITE_API_URL||'http://localhost:5000/api/v1';
 const SOCKET=import.meta.env.VITE_SOCKET_URL||'http://localhost:5000';
 interface Ticket{id:string;user_id:string;user_name:string;email:string;subject:string;status:string;priority:string;updated_at:string}
@@ -12,8 +12,8 @@ export default function HelpDeskConsole(){
  const socket=useRef<Socket|null>(null);const bottom=useRef<HTMLDivElement>(null);const headers={Authorization:'Bearer '+token,'Content-Type':'application/json'};
  const load=async()=>{try{const r=await fetch(API+'/helpdesk/tickets',{headers});const d=await r.json();if(!r.ok)throw new Error(d.message);setTickets(d);}catch(e:any){setNotice(e.message||'Unable to load tickets.');}};
  const open=async(t:Ticket)=>{setSelected(t);setStatus(t.status);try{const r=await fetch(API+'/helpdesk/tickets/'+t.id+'/messages',{headers});const d=await r.json();if(!r.ok)throw new Error(d.message);setMessages(d);}catch(e:any){setNotice(e.message||'Unable to load conversation.');}};
- useEffect(()=>{load();socket.current=io(SOCKET,{auth:{token}});return()=>socket.current?.disconnect();},[]);
- useEffect(()=>{if(!selected||!socket.current)return;const room='ticket_'+selected.id;socket.current.emit('join_ticket',selected.id);const handler=(m:Msg)=>setMessages(x=>[...x,m]);socket.current.on('chat_message',handler);return()=>socket.current?.off('chat_message',handler);},[selected]);
+ useEffect(()=>{load();socket.current=io(SOCKET,{auth:{token}});return()=>{socket.current?.disconnect();};},[]);
+ useEffect(()=>{if(!selected||!socket.current)return;socket.current.emit('join_ticket',selected.id);const handler=(m:Msg)=>setMessages(x=>[...x,m]);socket.current.on('chat_message',handler);return()=>socket.current?.off('chat_message',handler);},[selected]);
  useEffect(()=>bottom.current?.scrollIntoView({behavior:'smooth'}),[messages]);
  const send=async(e:React.FormEvent)=>{e.preventDefault();if(!selected||!text.trim())return;const message=text.trim();setText('');try{const r=await fetch(API+'/helpdesk/tickets/'+selected.id+'/messages',{method:'POST',headers,body:JSON.stringify({message})});const d=await r.json();if(!r.ok)throw new Error(d.message);setMessages(x=>[...x,{id:d.messageId,sender_user_id:user.id,sender_name:user.name||'Support Agent',message_text:message,sent_at:new Date().toISOString(),is_internal_note:false}]);}catch(e:any){setNotice(e.message||'Message failed.');}};
  const update=async()=>{if(!selected)return;try{const r=await fetch(API+'/helpdesk/tickets/'+selected.id,{method:'PATCH',headers,body:JSON.stringify({status,priority:selected.priority})});const d=await r.json();if(!r.ok)throw new Error(d.message);setNotice('Ticket updated successfully.');load();setSelected({...selected,status});}catch(e:any){setNotice(e.message||'Update failed.');}};
