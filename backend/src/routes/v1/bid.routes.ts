@@ -3,6 +3,7 @@ import { submitBid, getBidsByTender, getMyBids, evaluateBid, awardTender } from 
 import { authenticate } from '../../middlewares/auth.middleware';
 import { authorize } from '../../middlewares/role.middleware';
 import { UserRoles } from '../../constants/roles';
+import { logAudit } from '../../middlewares/audit.middleware';
 
 const router = Router();
 const procurementRoles = [UserRoles.ADMIN, UserRoles.SUPER_ADMIN, UserRoles.TENDER_OFFICER];
