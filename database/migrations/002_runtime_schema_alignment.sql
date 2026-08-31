@@ -3,15 +3,14 @@
 
 USE nersf_db;
 
--- Canonical application roles.
-INSERT INTO roles (id,name,description) VALUES
-(6,'CITIZEN','Registered public consumer'),
-(7,'VENDOR','Verified or pending vendor/bidder'),
-(8,'TENDER_OFFICER','Government procurement officer'),
-(9,'OFFICER','Government operational officer'),
-(10,'SUPER_ADMIN','Highest privileged system administrator'),
-(11,'SUPPORT_AGENT','24/7 help desk support agent')
-ON DUPLICATE KEY UPDATE description=VALUES(description);
+-- Canonical application roles. IDs are intentionally database-assigned.
+INSERT IGNORE INTO roles (name,description) VALUES
+('CITIZEN','Registered public consumer'),
+('VENDOR','Verified or pending vendor/bidder'),
+('TENDER_OFFICER','Government procurement officer'),
+('OFFICER','Government operational officer'),
+('SUPER_ADMIN','Highest privileged system administrator'),
+('SUPPORT_AGENT','24/7 help desk support agent');
 
 -- User role string used by the application JWT/RBAC layer.
 ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(50) NULL AFTER role_id;
