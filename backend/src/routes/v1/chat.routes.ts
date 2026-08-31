@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { authenticate } from '../../middlewares/auth.middleware';
 import { authorize } from '../../middlewares/role.middleware';
 import { UserRoles } from '../../constants/roles';
+import { logAudit } from '../../middlewares/audit.middleware';
 import { createTicket,getMyTickets,getSupportTickets,updateTicket,getMessages,postMessage } from '../../controllers/chat.controller';
 
 const router=Router();
