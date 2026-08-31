@@ -58,9 +58,9 @@ jobs:
           --health-retries=10
     steps:
       - uses: actions/checkout@v4
-      - name: Verify migration file exists
-        run: test -f database/migrations/001_app_compatibility.sql
-      - name: Check SQL syntax
+      - name: Initialize canonical schema
+        run: mysql -h 127.0.0.1 -uroot -proot < database/schema.sql
+      - name: Apply compatibility migrations
         run: |
           mysql -h 127.0.0.1 -uroot -proot nersf_db < database/migrations/001_app_compatibility.sql
-        continue-on-error: true
+          mysql -h 127.0.0.1 -uroot -proot nersf_db < database/migrations/002_runtime_schema_alignment.sql
