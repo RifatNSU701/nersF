@@ -11,7 +11,7 @@ const procurementRoles = [UserRoles.ADMIN, UserRoles.SUPER_ADMIN, UserRoles.TEND
 router.post('/', authenticate, authorize([UserRoles.VENDOR]), submitBid);
 router.get('/my', authenticate, authorize([UserRoles.VENDOR]), getMyBids);
 router.get('/:tenderId', authenticate, authorize([...procurementRoles, UserRoles.AUDITOR]), getBidsByTender);
-router.patch('/:bidId/evaluate', authenticate, authorize(procurementRoles), evaluateBid);
-router.post('/:tenderId/award/:bidId', authenticate, authorize(procurementRoles), awardTender);
+router.patch('/:bidId/evaluate', authenticate, authorize(procurementRoles), logAudit('EVALUATE_BID','BID'), evaluateBid);
+router.post('/:tenderId/award/:bidId', authenticate, authorize(procurementRoles), logAudit('AWARD_TENDER','TENDER'), awardTender);
 
 export default router;
