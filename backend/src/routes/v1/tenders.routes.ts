@@ -3,6 +3,7 @@ import { createTender, getAllTenders, getTenderById, closeTender } from '../../c
 import { authenticate } from '../../middlewares/auth.middleware';
 import { authorize } from '../../middlewares/role.middleware';
 import { UserRoles } from '../../constants/roles';
+import { logAudit } from '../../middlewares/audit.middleware';
 import { upload } from '../../utils/upload';
 
 const router = Router();
