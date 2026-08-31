@@ -47,7 +47,7 @@ function App() {
       <Route path="/vendor" element={<VendorDashboard />} />
     </Route>
 
-    <Route element={<ProtectedRoute roles={['ADMIN', 'OFFICER', 'AUDITOR', 'SUPER_ADMIN', 'SUPPORT_AGENT']} />}>
+    <Route element={<ProtectedRoute roles={['ADMIN', 'OFFICER', 'AUDITOR', 'SUPER_ADMIN', 'TENDER_OFFICER', 'SUPPORT_AGENT']} />}>
       <Route path="/admin" element={<DashboardLayout />}>
         <Route index element={<DashboardOverview />} />
         <Route path="dashboard" element={<DashboardOverview />} />
