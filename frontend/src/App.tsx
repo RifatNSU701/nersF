@@ -15,6 +15,7 @@ import Consumers from './pages/admin/Consumers';
 import Vendors from './pages/admin/Vendors';
 import Reports from './pages/admin/Reports';
 import TenderEvaluation from './pages/admin/TenderEvaluation';
+import SupportManagement from './pages/admin/SupportManagement';
 
 const getUser = () => { try { return JSON.parse(localStorage.getItem('nersf_user') || 'null'); } catch { return null; } };
 
@@ -53,6 +54,7 @@ function App() {
         <Route path="vendors" element={<Vendors />} />
         <Route path="reports" element={<Reports />} />
         <Route path="tender-evaluation" element={<TenderEvaluation />} />
+        <Route path="support" element={<SupportManagement />} />
       </Route>
     </Route>
 
