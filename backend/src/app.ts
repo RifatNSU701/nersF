@@ -21,6 +21,7 @@ import uploadRoutes from './routes/v1/upload.routes';
 import { startCurrencyOracle } from './services/currency.service';
 import exportRoutes from './routes/v1/export.routes';
 import chatRoutes from './routes/v1/chat.routes';
+import auditRoutes from './routes/v1/audit.routes';
 
 const app: Application = express();
 
@@ -62,6 +63,7 @@ app.use('/api/v1/trade', tradeRoutes);    // Import & Export
 app.use('/api/v1/upload', uploadRoutes);  // File Uploads
 app.use('/api/v1/export', exportRoutes); //Data Export (CSV, Excel)
 app.use('/api/v1/helpdesk', chatRoutes); // 24/7 Help Desk & Live Chat
+app.use('/api/v1/audit', auditRoutes); // Government Audit Ledger
 
 // Health Check
 app.get('/', (req: Request, res: Response) => {
