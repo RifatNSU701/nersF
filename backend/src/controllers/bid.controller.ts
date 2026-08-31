@@ -31,7 +31,7 @@ export const submitBid = async (req: AuthRequest, res: Response): Promise<void> 
 
 export const getMyBids = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const [rows]: any[] = await pool.execute(`SELECT b.*, t.title, t.reference_no, t.closing_date FROM bids b JOIN tenders t ON b.tender_id = t.id WHERE v.user_id = ? ORDER BY b.created_at DESC`, [req.user?.id]);
+    const [rows]: any[] = await pool.execute(`SELECT b.*, t.title, t.reference_no, t.closing_date FROM bids b JOIN tenders t ON b.tender_id = t.id JOIN vendors v ON b.vendor_id = v.id WHERE v.user_id = ? ORDER BY b.created_at DESC`, [req.user?.id]);
     res.status(200).json(rows);
   } catch (error) { console.error('My bids error:', error); res.status(500).json({ message: 'Server Error' }); }
 };
