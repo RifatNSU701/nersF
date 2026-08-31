@@ -1,0 +1,10 @@
+import { Router } from 'express';
+import { authenticate } from '../../middlewares/auth.middleware';
+import { authorize } from '../../middlewares/role.middleware';
+import { UserRoles } from '../../constants/roles';
+import { getAuditLogs,getAuditSummary } from '../../controllers/audit.controller';
+const router=Router();
+const readers=[UserRoles.ADMIN,UserRoles.SUPER_ADMIN,UserRoles.AUDITOR];
+router.get('/logs',authenticate,authorize(readers),getAuditLogs);
+router.get('/summary',authenticate,authorize(readers),getAuditSummary);
+export default router;
