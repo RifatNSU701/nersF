@@ -2,121 +2,112 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
-import pool from '../config/database'; 
+import pool from '../config/database';
 
-// Define valid roles locally to avoid import errors
-const VALID_ROLES = ['ADMIN', 'CITIZEN', 'VENDOR', 'OFFICER'];
+const SELF_REGISTRATION_ROLES = ['CITIZEN', 'VENDOR'];
 
-// ==========================================
-// REGISTER
-// ==========================================
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, email, password, role, phone_number } = req.body;
 
-    // 1. Validate Input
     if (!name || !email || !password || !role) {
       res.status(400).json({ message: 'Missing required fields' });
       return;
     }
 
-    // 2. Validate Role
-    // We convert input to uppercase to match our database ENUM
-    const normalizedRole = role.toUpperCase();
-    if (!VALID_ROLES.includes(normalizedRole)) {
-      res.status(400).json({ message: 'Invalid Role provided' });
+    const normalizedRole = String(role).toUpperCase();
+    if (!SELF_REGISTRATION_ROLES.includes(normalizedRole)) {
+      res.status(403).json({ message: 'Only consumer and vendor accounts can be created through public registration.' });
       return;
     }
 
-    // 3. Check for Existing User
-    const [existing]: any[] = await pool.execute('SELECT * FROM users WHERE email = ?', [email]);
+    if (String(password).length < 8) {
+      res.status(400).json({ message: 'Password must contain at least 8 characters.' });
+      return;
+    }
+
+    const [existing]: any[] = await pool.execute('SELECT id FROM users WHERE email = ?', [String(email).trim().toLowerCase()]);
     if (existing.length > 0) {
       res.status(409).json({ message: 'Email already registered' });
       return;
     }
 
-    // 4. Hash Password & ID
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 12);
     const userId = uuidv4();
+    const isActive = normalizedRole === 'CITIZEN' ? 1 : 0;
 
-    // 5. Insert into DB
     await pool.execute(
-      `INSERT INTO users (id, full_name, email, password_hash, role, phone_number, is_active) 
-        VALUES (?, ?, ?, ?, ?, ?, 1)`,
-      [userId, name, email, hashedPassword, normalizedRole, phone_number]
+      'INSERT INTO users (id, full_name, email, password_hash, role, phone_number, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [userId, String(name).trim(), String(email).trim().toLowerCase(), hashedPassword, normalizedRole, phone_number || null, isActive]
     );
 
-    res.status(201).json({ message: 'User registered successfully' });
-
+    res.status(201).json({
+      message: normalizedRole === 'VENDOR'
+        ? 'Vendor application submitted. Your account requires government verification before activation.'
+        : 'Consumer account registered successfully.',
+      status: normalizedRole === 'VENDOR' ? 'PENDING_VERIFICATION' : 'ACTIVE'
+    });
   } catch (error) {
-    console.error(error);
+    console.error('Registration error:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
 
-// ==========================================
-// LOGIN
-// ==========================================
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
+    if (!email || !password) {
+      res.status(400).json({ message: 'Email and password are required.' });
+      return;
+    }
 
-    // 1. Find User
-    const [rows]: any[] = await pool.execute('SELECT * FROM users WHERE email = ?', [email]);
+    const [rows]: any[] = await pool.execute('SELECT * FROM users WHERE email = ?', [String(email).trim().toLowerCase()]);
     if (rows.length === 0) {
       res.status(401).json({ message: 'Invalid credentials' });
       return;
     }
 
     const user = rows[0];
+    if (!user.is_active) {
+      res.status(403).json({ message: 'This account is pending approval or has been disabled.' });
+      return;
+    }
 
-    // 2. Check Password
     const isValid = await bcrypt.compare(password, user.password_hash);
     if (!isValid) {
       res.status(401).json({ message: 'Invalid credentials' });
       return;
     }
 
-    // 3. Generate Token
-    const token = jwt.sign(
-      { 
-        id: user.id, 
-        role: user.role // This is a string (e.g. "VENDOR")
-      }, 
-      process.env.JWT_SECRET || 'secret', 
-      { expiresIn: '1h' }
-    );
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      res.status(500).json({ message: 'Server authentication configuration is incomplete.' });
+      return;
+    }
 
-    res.status(200).json({ 
-      message: 'Login successful', 
+    const token = jwt.sign({ id: user.id, role: user.role }, secret, { expiresIn: process.env.JWT_EXPIRES_IN || '1h' } as jwt.SignOptions);
+
+    res.status(200).json({
+      message: 'Login successful',
       token,
-      user: {
-        id: user.id,
-        name: user.full_name,
-        role: user.role
-      }
+      user: { id: user.id, name: user.full_name, email: user.email, role: user.role }
     });
-
   } catch (error) {
-    console.error(error);
+    console.error('Login error:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
 
-// ==========================================
-// GET CURRENT USER
-// ==========================================
 export const getCurrentUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = (req as any).user?.id;
-    
     if (!userId) {
-       res.status(401).json({ message: "Unauthorized" });
-       return;
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
     }
 
     const [rows]: any[] = await pool.execute(
-      'SELECT id, full_name, email, role, phone_number FROM users WHERE id = ?', 
+      'SELECT id, full_name, email, role, phone_number, is_active, is_verified FROM users WHERE id = ?',
       [userId]
     );
 
@@ -127,7 +118,7 @@ export const getCurrentUser = async (req: Request, res: Response): Promise<void>
 
     res.json(rows[0]);
   } catch (error) {
-    console.error(error);
+    console.error('Current user error:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 };
