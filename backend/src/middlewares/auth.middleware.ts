@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { AuthRequest } from '../interfaces/request.interface';
+import { UserRole } from '../interfaces/user.interface';
 
 export const authenticate = (req: AuthRequest, res: Response, next: NextFunction): void => {
   const authHeader = req.headers.authorization;
@@ -19,9 +20,19 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
   try {
     const token = authHeader.slice(7);
     const decoded = jwt.verify(token, secret) as { id: string; role: string };
-    req.user = { id: decoded.id, role: decoded.role };
+    req.user = { id: decoded.id, role: decoded.role as UserRole };
     next();
   } catch {
     res.status(401).json({ message: 'Invalid or expired authentication token.' });
   }
+};
+
+export const authorize = (allowedRoles: UserRole[]) => {
+  return (req: AuthRequest, res: Response, next: NextFunction): void => {
+    if (!req.user || !allowedRoles.includes(req.user.role)) {
+      res.status(403).json({ message: 'Access denied: insufficient permissions.' });
+      return;
+    }
+    next();
+  };
 };
