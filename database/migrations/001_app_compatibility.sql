@@ -5,7 +5,7 @@ USE nersf_db;
 
 -- Application roles used by the backend.
 INSERT IGNORE INTO roles (id,name,description) VALUES
-(6,'CONSUMER','Registered energy service consumer'),
+(6,'CITIZEN','Registered energy service consumer'),
 (7,'TENDER_OFFICER','Government procurement officer'),
 (8,'OFFICER','Government operational officer'),
 (9,'SUPER_ADMIN','Highest privileged system administrator'),
