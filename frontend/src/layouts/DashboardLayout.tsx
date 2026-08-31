@@ -2,7 +2,7 @@ import React from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, Globe, Package, Users, 
-  Briefcase, FileText, Gavel, MessageSquare, LogOut, Shield 
+  Briefcase, FileText, Gavel, MessageSquare, Headphones, LogOut, Shield 
 } from 'lucide-react';
 
 const DashboardLayout = () => {
@@ -17,6 +17,7 @@ const DashboardLayout = () => {
     { icon: <Briefcase size={20} />, label: 'Vendor Registry', path: '/admin/vendors' },
     { icon: <Gavel size={20} />, label: 'Tender Evaluation', path: '/admin/tender-evaluation' },
     { icon: <MessageSquare size={20} />, label: 'Support Cases', path: '/admin/support' },
+    { icon: <Headphones size={20} />, label: 'Live Help Desk', path: '/admin/helpdesk' },
     { icon: <FileText size={20} />, label: 'Audit Reports', path: '/admin/reports' },
   ];
 
