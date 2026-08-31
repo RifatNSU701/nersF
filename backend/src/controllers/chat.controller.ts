@@ -137,7 +137,7 @@ export const postMessage = async (req: AuthRequest, res: Response): Promise<void
       return;
     }
     const message = String(req.body.message || '').trim();
-    const isInternalNote = Boolean(req.body.is_internal_note);
+    const isInternalNote = req.body.is_internal_note === true || req.body.is_internal_note === 1 || req.body.is_internal_note === '1' || req.body.is_internal_note === 'true';
     if (!message) {
       res.status(400).json({ message: 'A message is required.' });
       return;
@@ -162,7 +162,12 @@ export const postMessage = async (req: AuthRequest, res: Response): Promise<void
       is_internal_note: isInternalNote,
       sent_at: new Date().toISOString(),
     };
-    if (!isInternalNote) getIO().to(`ticket_${ticketId}`).emit('chat_message', payload);
+    // Consumers must never receive internal notes. Agents may receive both message types in real time.
+    if (isInternalNote) {
+      getIO().to(`ticket_${ticketId}`).emit('chat_internal_note', payload);
+    } else {
+      getIO().to(`ticket_${ticketId}`).emit('chat_message', payload);
+    }
     res.status(201).json({ messageId: id, message: payload });
   } catch (error) {
     console.error('Unable to send support message:', error);
