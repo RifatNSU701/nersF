@@ -17,6 +17,7 @@ import Vendors from './pages/admin/Vendors';
 import Reports from './pages/admin/Reports';
 import TenderEvaluation from './pages/admin/TenderEvaluation';
 import SupportManagement from './pages/admin/SupportManagement';
+import HelpDeskConsole from './pages/admin/HelpDeskConsole';
 
 const getUser = () => { try { return JSON.parse(localStorage.getItem('nersf_user') || 'null'); } catch { return null; } };
 
@@ -46,7 +47,7 @@ function App() {
       <Route path="/vendor" element={<VendorDashboard />} />
     </Route>
 
-    <Route element={<ProtectedRoute roles={['ADMIN', 'OFFICER', 'AUDITOR', 'SUPER_ADMIN']} />}>
+    <Route element={<ProtectedRoute roles={['ADMIN', 'OFFICER', 'AUDITOR', 'SUPER_ADMIN', 'SUPPORT_AGENT']} />}>
       <Route path="/admin" element={<DashboardLayout />}>
         <Route index element={<DashboardOverview />} />
         <Route path="dashboard" element={<DashboardOverview />} />
@@ -57,6 +58,7 @@ function App() {
         <Route path="reports" element={<Reports />} />
         <Route path="tender-evaluation" element={<TenderEvaluation />} />
         <Route path="support" element={<SupportManagement />} />
+        <Route path="helpdesk" element={<HelpDeskConsole />} />
       </Route>
     </Route>
 
