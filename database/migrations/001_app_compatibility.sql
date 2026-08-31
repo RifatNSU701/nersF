@@ -3,13 +3,7 @@
 
 USE nersf_db;
 
--- Application roles used by the backend.
-INSERT IGNORE INTO roles (id,name,description) VALUES
-(6,'CITIZEN','Registered energy service consumer'),
-(7,'TENDER_OFFICER','Government procurement officer'),
-(8,'OFFICER','Government operational officer'),
-(9,'SUPER_ADMIN','Highest privileged system administrator'),
-(10,'SUPPORT_AGENT','24/7 help desk support agent');
+-- Canonical roles are seeded by database/schema.sql. Migration 001 intentionally does not insert role IDs.
 
 -- Current backend stores the role as a string. Keep this column synchronized
 -- with the application during migration; role_id remains for legacy compatibility.
