@@ -52,9 +52,9 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use('/api/v1/auth', authRoutes);     // Auth
 app.use('/api/v1/tenders', tenderRoutes); // Tenders
 app.use('/api/v1/bids', bidRoutes);       // Bids
-app.use('/api/vendors', vendorRoutes);    // Vendors
-app.use('/api/storage', storageRoutes);   // Storage (Warehouses)
-app.use('/api/requisitions', requisitionRoutes); // Requisitions
+app.use('/api/v1/vendors', vendorRoutes);    // Vendors
+app.use('/api/v1/storage', storageRoutes);   // Storage (Warehouses)
+app.use('/api/v1/requisitions', requisitionRoutes); // Requisitions
 app.use('/api/v1/cms', cmsRoutes);        // CMS (News & Notices)
 app.use('/api/v1/crm', crmRoutes);        // CRM (Complaints & Feedback)
 app.use('/api/v1/trade', tradeRoutes);    // Import & Export
