@@ -5,6 +5,8 @@ import Register from './pages/Register';
 import Tenders from './pages/Tenders';
 import Prices from './pages/Prices';
 import Infrastructure from './pages/Infrastructure';
+import ConsumerDashboard from './pages/consumer/ConsumerDashboard';
+import VendorDashboard from './pages/vendor/VendorDashboard';
 import DashboardLayout from './layouts/DashboardLayout';
 import DashboardOverview from './pages/admin/DashboardOverview';
 import ImportExport from './pages/admin/ImportExport';
@@ -15,12 +17,11 @@ import Reports from './pages/admin/Reports';
 
 const getUser = () => { try { return JSON.parse(localStorage.getItem('nersf_user') || 'null'); } catch { return null; } };
 
-function ProtectedGovernmentRoute() {
+function ProtectedRoute({ roles }: { roles: string[] }) {
   const token = localStorage.getItem('nersf_token');
   const user = getUser();
-  const governmentRoles = ['ADMIN', 'OFFICER', 'AUDITOR', 'SUPER_ADMIN'];
   if (!token || !user) return <Navigate to="/login" replace />;
-  if (!governmentRoles.includes(user.role)) return <Navigate to="/" replace />;
+  if (!roles.includes(user.role)) return <Navigate to="/" replace />;
   return <Outlet />;
 }
 
@@ -32,7 +33,16 @@ function App() {
     <Route path="/infrastructure" element={<Infrastructure />} />
     <Route path="/login" element={<Login />} />
     <Route path="/register" element={<Register />} />
-    <Route element={<ProtectedGovernmentRoute />}>
+
+    <Route element={<ProtectedRoute roles={['CITIZEN']} />}>
+      <Route path="/consumer" element={<ConsumerDashboard />} />
+    </Route>
+
+    <Route element={<ProtectedRoute roles={['VENDOR']} />}>
+      <Route path="/vendor" element={<VendorDashboard />} />
+    </Route>
+
+    <Route element={<ProtectedRoute roles={['ADMIN', 'OFFICER', 'AUDITOR', 'SUPER_ADMIN']} />}>
       <Route path="/admin" element={<DashboardLayout />}>
         <Route index element={<DashboardOverview />} />
         <Route path="dashboard" element={<DashboardOverview />} />
@@ -43,6 +53,7 @@ function App() {
         <Route path="reports" element={<Reports />} />
       </Route>
     </Route>
+
     <Route path="*" element={<Navigate to="/" replace />} />
   </Routes></BrowserRouter>;
 }
