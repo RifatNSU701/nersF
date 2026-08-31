@@ -1,40 +1,22 @@
 import { Response, NextFunction } from 'express';
 import pool from '../config/database';
-// We assume this interface exists since Auth is working. 
-// If it fails, we can define it here.
-import { AuthRequest } from '../interfaces/request.interface'; 
+import { AuthRequest } from '../interfaces/request.interface';
 
-export const logAudit = (action: string, entity: string) => {
-  return async (req: AuthRequest, res: Response, next: NextFunction) => {
-    // 1. Capture the request start
-    const startTime = Date.now();
-    
-    // 2. Let the request happen
-    next(); 
+const redact=(body:any)=>{
+ const safe={...(body||{})};
+ ['password','passwordHash','token','refreshToken','authorization'].forEach(k=>{if(k in safe)safe[k]='[REDACTED]';});
+ return safe;
+};
 
-    // 3. Log AFTER the request finishes (on 'finish' event)
-    res.on('finish', async () => {
-      // Only log successful actions (2xx status codes)
-      if (res.statusCode >= 200 && res.statusCode < 300) {
-        try {
-          const userId = req.user?.id || null;
-          const ip = req.ip || req.socket.remoteAddress;
-          const entityId = req.params.id || null;
-          
-          // Safety: Don't log passwords or huge bodies
-          const safeBody = { ...req.body };
-          delete safeBody.password;
-          const details = JSON.stringify(safeBody); 
-
-          await pool.execute(
-            `INSERT INTO audit_logs (user_id, action, entity, entity_id, details, ip_address) 
-             VALUES (?, ?, ?, ?, ?, ?)`,
-            [userId, action, entity, entityId, details, ip]
-          );
-        } catch (error) {
-          console.error('[AUDIT] Failed to log action:', error);
-        }
-      }
-    });
-  };
+export const logAudit=(action:string,entity:string)=>{
+ return (req:AuthRequest,res:Response,next:NextFunction)=>{
+  res.on('finish',async()=>{
+   if(res.statusCode<200||res.statusCode>=400)return;
+   try{
+    const ip=(req.headers['x-forwarded-for'] as string)?.split(',')[0].trim()||req.ip||req.socket.remoteAddress||null;
+    await pool.execute('INSERT INTO audit_logs (user_id,action,entity,entity_id,details,ip_address) VALUES (?,?,?,?,?,?)',[req.user?.id||null,action,entity,req.params.id||req.params.tenderId||req.params.ticketId||null,JSON.stringify({method:req.method,path:req.originalUrl,body:redact(req.body),statusCode:res.statusCode}),ip]);
+   }catch(error){console.error('[AUDIT] Failed to write audit event:',error);}
+  });
+  next();
+ };
 };
