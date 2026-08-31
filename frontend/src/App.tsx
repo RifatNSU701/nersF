@@ -14,6 +14,7 @@ import Stocks from './pages/admin/Stocks';
 import Consumers from './pages/admin/Consumers';
 import Vendors from './pages/admin/Vendors';
 import Reports from './pages/admin/Reports';
+import TenderEvaluation from './pages/admin/TenderEvaluation';
 
 const getUser = () => { try { return JSON.parse(localStorage.getItem('nersf_user') || 'null'); } catch { return null; } };
 
@@ -51,6 +52,7 @@ function App() {
         <Route path="consumers" element={<Consumers />} />
         <Route path="vendors" element={<Vendors />} />
         <Route path="reports" element={<Reports />} />
+        <Route path="tender-evaluation" element={<TenderEvaluation />} />
       </Route>
     </Route>
 
