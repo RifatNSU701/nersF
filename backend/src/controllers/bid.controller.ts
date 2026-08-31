@@ -67,7 +67,7 @@ export const awardTender = async (req: AuthRequest, res: Response): Promise<void
     if (!bids.length) { await connection.rollback(); connection.release(); res.status(404).json({ message: 'Bid not found for this tender.' }); return; }
 
     const [tenders]: any[] = await connection.execute('SELECT status FROM tenders WHERE id = ? FOR UPDATE', [req.params.tenderId]);
-    if (!tenders.length || !['OPEN', 'CLOSED'].includes(tenders[0].status)) { await connection.rollback(); connection.release(); res.status(400).json({ message: 'Tender cannot be awarded in its current state.' }); return; }
+    if (!tenders.length || tenders[0].status !== 'CLOSED') { await connection.rollback(); connection.release(); res.status(400).json({ message: 'Tender cannot be awarded in its current state.' }); return; }
 
     await connection.execute('UPDATE bids SET status = ? WHERE tender_id = ? AND id <> ? AND status IN (?, ?)', ['REJECTED', req.params.tenderId, req.params.bidId, 'PENDING', 'SHORTLISTED']);
     await connection.execute('UPDATE bids SET status = ? WHERE id = ?', ['AWARDED', req.params.bidId]);
