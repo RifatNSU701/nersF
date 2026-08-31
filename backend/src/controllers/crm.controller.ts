@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { AuthRequest } from '../interfaces/request.interface';
 import pool from '../config/database';
+import { v4 as uuidv4 } from 'uuid';
 
 const VALID_STATUSES = ['PENDING', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'];
 
@@ -8,7 +9,11 @@ export const createComplaint = async (req: AuthRequest, res: Response): Promise<
   try {
     const { subject, description } = req.body;
     if (!subject || !description) { res.status(400).json({ message: 'Subject and description are required.' }); return; }
-    await pool.execute(`INSERT INTO complaints (user_id, subject, description, status) VALUES (?, ?, ?, 'PENDING')`, [req.user?.id, String(subject).trim(), String(description).trim()]);
+    const complaintId = uuidv4();
+    await pool.execute(
+      `INSERT INTO complaints (id, user_id, subject, details, description, status) VALUES (?, ?, ?, ?, ?, 'PENDING')`,
+      [complaintId, req.user?.id, String(subject).trim(), String(description).trim(), String(description).trim()]
+    );
     res.status(201).json({ message: 'Complaint submitted successfully.' });
   } catch (error) { console.error(error); res.status(500).json({ message: 'Error submitting complaint' }); }
 };
