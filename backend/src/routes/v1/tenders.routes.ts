@@ -16,6 +16,7 @@ router.post(
   authenticate,
   authorize([UserRoles.ADMIN, UserRoles.TENDER_OFFICER]),
   upload.single('tender_doc'),
+  logAudit('CREATE_TENDER','TENDER'),
   createTender
 );
 
@@ -23,6 +24,7 @@ router.patch(
   '/:id/close',
   authenticate,
   authorize([UserRoles.ADMIN, UserRoles.TENDER_OFFICER]),
+  logAudit('CLOSE_TENDER','TENDER'),
   closeTender
 );
 
