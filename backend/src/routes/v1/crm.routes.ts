@@ -3,6 +3,7 @@ import { createComplaint, getMyComplaints, getAllComplaints, updateComplaint, su
 import { authenticate } from '../../middlewares/auth.middleware';
 import { authorize } from '../../middlewares/role.middleware';
 import { UserRoles } from '../../constants/roles';
+import { logAudit } from '../../middlewares/audit.middleware';
 
 const router = Router();
 const consumerRoles = [UserRoles.CITIZEN];
