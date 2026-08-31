@@ -23,7 +23,7 @@ USE `nersf_db`;
 -- Table: roles
 -- Description: Normalized role definitions for strict access control.
 CREATE TABLE IF NOT EXISTS `roles` (
-  `id` INT NOT NULL, -- Static IDs (1-5) for core roles to prevent UUID overhead on constant lookups
+  `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(50) NOT NULL,
   `description` VARCHAR(255) NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -31,13 +31,17 @@ CREATE TABLE IF NOT EXISTS `roles` (
   UNIQUE INDEX `role_name_UNIQUE` (`name` ASC)
 ) ENGINE = InnoDB;
 
--- Seeding Core Roles (Mandatory)
-INSERT IGNORE INTO `roles` (`id`, `name`, `description`) VALUES
-(1, 'VISITOR', 'Public anonymous user with read-only access to public data'),
-(2, 'TENDER_USER', 'Verified vendor/company capable of bidding'),
-(3, 'AUDITOR', 'Government appointed auditor for financial and operational oversight'),
-(4, 'ADMIN', 'System administrator with high-level privileges'),
-(5, 'HELP_DESK', 'Support agent for user assistance');
+-- Canonical RBAC roles used consistently by the frontend, backend, JWTs and database.
+INSERT IGNORE INTO `roles` (`name`, `description`) VALUES
+('SUPER_ADMIN', 'Highest privileged system administrator'),
+('ADMIN', 'System administrator with high-level privileges'),
+('OFFICER', 'Government operational officer'),
+('TENDER_OFFICER', 'Government procurement officer'),
+('AUDITOR', 'Government appointed auditor for financial and operational oversight'),
+('SUPPORT_AGENT', '24/7 help desk support agent'),
+('VENDOR', 'Verified or pending vendor/company capable of bidding'),
+('CITIZEN', 'Registered energy service consumer'),
+('VISITOR', 'Public anonymous read-only access role');
 
 -- Table: users
 -- Description: Central identity store using UUIDs for security.
