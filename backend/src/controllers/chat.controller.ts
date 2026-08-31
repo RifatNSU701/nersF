@@ -98,8 +98,9 @@ export const updateTicket = async (req: AuthRequest, res: Response): Promise<voi
 
 export const getMessages = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
+    const ticketId = String(req.params.ticketId);
     const role = String(req.user!.role);
-    const access = await ticketAccess(String(req.params.ticketId), req.user!.id, role);
+    const access = await ticketAccess(ticketId, req.user!.id, role);
     if (!access.exists) {
       res.status(404).json({ message: 'Support ticket not found.' });
       return;
@@ -113,7 +114,7 @@ export const getMessages = async (req: AuthRequest, res: Response): Promise<void
       `SELECT m.id, m.ticket_id, m.sender_user_id, u.full_name AS sender_name, m.message_text, m.is_internal_note, m.sent_at
        FROM chat_messages m JOIN users u ON u.id = m.sender_user_id
        WHERE m.ticket_id = ?${internalClause} ORDER BY m.sent_at ASC`,
-      [req.params.ticketId],
+      [ticketId],
     );
     res.json(rows);
   } catch (error) {
@@ -124,8 +125,9 @@ export const getMessages = async (req: AuthRequest, res: Response): Promise<void
 
 export const postMessage = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
+    const ticketId = String(req.params.ticketId);
     const role = String(req.user!.role);
-    const access = await ticketAccess(String(req.params.ticketId), req.user!.id, role);
+    const access = await ticketAccess(ticketId, req.user!.id, role);
     if (!access.exists) {
       res.status(404).json({ message: 'Support ticket not found.' });
       return;
@@ -147,20 +149,20 @@ export const postMessage = async (req: AuthRequest, res: Response): Promise<void
     const id = uuidv4();
     await pool.execute(
       'INSERT INTO chat_messages (id, ticket_id, sender_user_id, message_text, is_internal_note) VALUES (?, ?, ?, ?, ?)',
-      [id, req.params.ticketId, req.user!.id, message, isInternalNote ? 1 : 0],
+      [id, ticketId, req.user!.id, message, isInternalNote ? 1 : 0],
     );
-    await pool.execute('UPDATE support_tickets SET updated_at = CURRENT_TIMESTAMP WHERE id = ?', [req.params.ticketId]);
+    await pool.execute('UPDATE support_tickets SET updated_at = CURRENT_TIMESTAMP WHERE id = ?', [ticketId]);
     const [users] = await pool.execute<any[]>('SELECT full_name FROM users WHERE id = ?', [req.user!.id]);
     const payload = {
       id,
-      ticket_id: req.params.ticketId,
+      ticket_id: ticketId,
       sender_user_id: req.user!.id,
       sender_name: users[0]?.full_name || 'Support',
       message_text: message,
       is_internal_note: isInternalNote,
       sent_at: new Date().toISOString(),
     };
-    if (!isInternalNote) getIO().to(`ticket_${req.params.ticketId}`).emit('chat_message', payload);
+    if (!isInternalNote) getIO().to(`ticket_${ticketId}`).emit('chat_message', payload);
     res.status(201).json({ messageId: id, message: payload });
   } catch (error) {
     console.error('Unable to send support message:', error);
