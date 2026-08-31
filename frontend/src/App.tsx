@@ -6,6 +6,7 @@ import Tenders from './pages/Tenders';
 import Prices from './pages/Prices';
 import Infrastructure from './pages/Infrastructure';
 import ConsumerDashboard from './pages/consumer/ConsumerDashboard';
+import HelpDesk from './pages/consumer/HelpDesk';
 import VendorDashboard from './pages/vendor/VendorDashboard';
 import DashboardLayout from './layouts/DashboardLayout';
 import DashboardOverview from './pages/admin/DashboardOverview';
@@ -38,6 +39,7 @@ function App() {
 
     <Route element={<ProtectedRoute roles={['CITIZEN']} />}>
       <Route path="/consumer" element={<ConsumerDashboard />} />
+      <Route path="/consumer/helpdesk" element={<HelpDesk />} />
     </Route>
 
     <Route element={<ProtectedRoute roles={['VENDOR']} />}>
