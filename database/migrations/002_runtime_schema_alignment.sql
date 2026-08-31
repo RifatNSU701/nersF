@@ -13,7 +13,7 @@ INSERT IGNORE INTO roles (name,description) VALUES
 ('SUPPORT_AGENT','24/7 help desk support agent');
 
 -- User role string used by the application JWT/RBAC layer.
-ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(50) NULL AFTER role_id;
+ALTER TABLE users ADD COLUMN role VARCHAR(50) NULL AFTER role_id;
 UPDATE users u JOIN roles r ON r.id=u.role_id SET u.role=r.name WHERE u.role IS NULL;
 ALTER TABLE users ADD INDEX idx_users_role (role);
 
